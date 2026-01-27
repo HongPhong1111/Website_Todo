@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+</head>
+<body>
+    <h1>Test Member Add API</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+    
+    <script>
+        async function testAPI() {
+            try {
+                // Test login first
+                const loginResponse = await fetch('http://localhost:4000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: 'admin@todo.local', 
+                        password: 'admin123' 
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                console.log('Login:', loginData);
+                
+                if (loginData.token) {
+                    // Test search users
+                    const searchResponse = await fetch('http://localhost:4000/api/projects/users/search?q=phong', {
+                        headers: { 'Authorization': `Bearer ${loginData.token}` }
+                    });
+                    
+                    const searchData = await searchResponse.json();
+                    console.log('Search:', searchData);
+                    
+                    document.getElementById('result').innerHTML = 
+                        `<pre>${JSON.stringify(searchData, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 
+                    `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

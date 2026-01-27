@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Member Add</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 8px 16px; margin: 5px; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Test Member Add Functionality</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Login</h2>
+        <input type="email" id="email" placeholder="Email" value="admin@todo.local">
+        <input type="password" id="password" placeholder="Password" value="admin123">
+        <button onclick="testLogin()">Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test User Search</h2>
+        <input type="text" id="searchQuery" placeholder="Search query (e.g., phong)">
+        <button onclick="testSearch()">Search Users</button>
+        <div id="searchResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Add Member</h2>
+        <input type="number" id="projectId" placeholder="Project ID" value="1">
+        <input type="number" id="userId" placeholder="User ID to add" value="2">
+        <button onclick="testAddMember()">Add Member</button>
+        <div id="addResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test Get Members</h2>
+        <input type="number" id="getProjectId" placeholder="Project ID" value="1">
+        <button onclick="testGetMembers()">Get Members</button>
+        <div id="getMembersResult" class="result"></div>
+    </div>
+
+    <script>
+        let authToken = '';
+        
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                console.log('Login response:', data);
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    document.getElementById('loginResult').innerHTML = 
+                        `✅ Login successful! Token: ${data.token.substring(0, 50)}...`;
+                } else {
+                    document.getElementById('loginResult').innerHTML = 
+                        `❌ Login failed: ${data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('loginResult').innerHTML = 
+                    `❌ Login error: ${error.message}`;
+            }
+        }
+        
+        async function testSearch() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            
+            const query = document.getElementById('searchQuery').value;
+            
+            try {
+                const response = await fetch(`http://localhost:4000/api/projects/users/search?q=${query}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                console.log('Search response:', data);
+                
+                if (response.ok) {
+                    document.getElementById('searchResult').innerHTML = 
+                        `✅ Found ${data.data.length} users: <br><pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('searchResult').innerHTML = 
+                        `❌ Search failed: ${data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                document.getElementById('searchResult').innerHTML = 
+                    `❌ Search error: ${error.message}`;
+            }
+        }
+        
+        async function testAddMember() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            
+            const projectId = document.getElementById('projectId').value;
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                const response = await fetch(`http://localhost:4000/api/projects/${projectId}/members`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ userId: parseInt(userId), role: 'viewer' })
+                });
+                
+                const data = await response.json();
+                console.log('Add member response:', data);
+                
+                if (response.ok) {
+                    document.getElementById('addResult').innerHTML = 
+                        `✅ Member added successfully! <br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('addResult').innerHTML = 
+                        `❌ Add member failed: ${data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Add member error:', error);
+                document.getElementById('addResult').innerHTML = 
+                    `❌ Add member error: ${error.message}`;
+            }
+        }
+        
+        async function testGetMembers() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            
+            const projectId = document.getElementById('getProjectId').value;
+            
+            try {
+                const response = await fetch(`http://localhost:4000/api/projects/${projectId}/members`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                console.log('Get members response:', data);
+                
+                if (response.ok) {
+                    document.getElementById('getMembersResult').innerHTML = 
+                        `✅ Found ${data.data.length} members: <br><pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('getMembersResult').innerHTML = 
+                        `❌ Get members failed: ${data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                console.error('Get members error:', error);
+                document.getElementById('getMembersResult').innerHTML = 
+                    `❌ Get members error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
