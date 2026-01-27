@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import MinimalAddMember from '../components/MinimalAddMember'
-import { Users, Plus, Settings, User } from 'lucide-react'
+import { Users, Plus, Settings, User, X, Trash2 } from 'lucide-react'
 
 export default function ProjectDetail() {
   const { id } = useParams()
@@ -16,6 +16,7 @@ export default function ProjectDetail() {
   const [title, setTitle] = useState('')
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentUserRole, setCurrentUserRole] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -31,7 +32,23 @@ export default function ProjectDetail() {
       try {
         const projectRes = await api.get(`/api/projects/${projectId}/members`)
         console.log('Members response:', projectRes.data)
-        setMembers(projectRes.data.data || [])
+        const membersData = projectRes.data.data || []
+        setMembers(membersData)
+        
+        // Set current user's role
+        const token = localStorage.getItem('token')
+        let currentUserId = null
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            currentUserId = payload.userId?.toString()
+          } catch (e) {
+            console.error('Failed to parse token:', e)
+          }
+        }
+        
+        const currentUser = membersData.find(m => m.id.toString() === currentUserId)
+        setCurrentUserRole(currentUser?.role || '')
       } catch (membersError) {
         console.error('Failed to load members:', membersError)
         setMembers([]) // Set empty array as fallback
@@ -53,6 +70,18 @@ export default function ProjectDetail() {
     })()
   }, [load, projectId])
 
+  const handleDeleteMember = async (memberId) => {
+    if (!confirm('Are you sure you want to remove this member?')) return
+    
+    try {
+      await api.delete(`/api/projects/${projectId}/members/${memberId}`)
+      // Reload members after deletion
+      load()
+    } catch (error) {
+      console.error('Failed to delete member:', error)
+      alert('Failed to remove member. You may not have permission.')
+    }
+  }
   
   const getStatusVariant = (status) => {
     switch (status) {
@@ -128,9 +157,21 @@ export default function ProjectDetail() {
                     </p>
                     <p className="text-xs text-gray-500 truncate">{member.email}</p>
                   </div>
-                  <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
-                    {member.role}
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
+                      {member.role}
+                    </Badge>
+                    {member.role !== 'owner' && (currentUserRole === 'owner' || currentUserRole === 'editor') && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMember(member.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

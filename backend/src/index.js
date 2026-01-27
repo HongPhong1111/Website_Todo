@@ -14,6 +14,7 @@ const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
 const adminRoutes = require('./routes/admin');
 const notificationRoutes = require('./routes/notifications');
+const teamRoutes = require('./routes/teams');
 
 const app = express();
 app.use(cors({ 
@@ -50,6 +51,7 @@ app.get('/', (req, res) => {
       tasks: '/api/tasks',
       notifications: '/api/notifications',
       admin: '/api/admin',
+      teams: '/api/teams',
     },
   });
 });
@@ -61,6 +63,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/teams', teamRoutes);
 
 app.use((err, req, res, next) => {
   // eslint-disable-next-line no-console

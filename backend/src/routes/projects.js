@@ -106,6 +106,38 @@ router.get('/users/search', async (req, res, next) => {
   }
 });
 
+router.delete('/:id/members/:userId', async (req, res, next) => {
+  try {
+    const projectId = Number(req.params.id);
+    const targetUserId = Number(req.params.userId);
+    const me = req.user.userId;
+
+    // Check if current user has permission (owner or editor)
+    const can = await query(
+      "SELECT 1 FROM project_members WHERE project_id = :projectId AND user_id = :me AND role IN ('owner','editor') LIMIT 1",
+      { projectId, me }
+    );
+    if (!can.length) return res.status(403).json({ message: 'Forbidden' });
+
+    // Prevent removing the owner
+    const ownerCheck = await query(
+      "SELECT 1 FROM project_members WHERE project_id = :projectId AND user_id = :targetUserId AND role = 'owner' LIMIT 1",
+      { projectId, targetUserId }
+    );
+    if (ownerCheck.length) return res.status(400).json({ message: 'Cannot remove project owner' });
+
+    // Remove the member
+    await query(
+      'DELETE FROM project_members WHERE project_id = :projectId AND user_id = :targetUserId',
+      { projectId, targetUserId }
+    );
+
+    res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get('/:id/members', async (req, res, next) => {
   try {
     const projectId = Number(req.params.id);
