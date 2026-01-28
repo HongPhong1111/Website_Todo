@@ -1,71 +1,86 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { api } from '../api/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import MinimalAddMember from '../components/MinimalAddMember'
-import { Users, Plus, Settings, User } from 'lucide-react'
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { api } from "../../api/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+import Kanban from "../../components/Kanban/ProjectBoard";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import MinimalAddMember from "../../components/MinimalAddMember";
+import { Users, Plus, Settings, User } from "lucide-react";
 
 export default function ProjectDetail() {
-  const { id } = useParams()
-  const projectId = Number(id)
+  const { id } = useParams();
+  const projectId = id;
 
-  const [tasks, setTasks] = useState([])
-  const [title, setTitle] = useState('')
-  const [members, setMembers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [projectCurrent, setProjectCurrent] = useState(null);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      console.log('Loading project data for projectId:', projectId)
-      
+      console.log("Loading project data for projectId:", projectId);
+
+      //load project current
+      const projectRes = await api.get(`/api/projects/${projectId}`);
+
+      setProjectCurrent(projectRes.data.data);
+
       // Load tasks first
-      const tasksRes = await api.get(`/api/tasks/by-project/${projectId}`)
-      console.log('Tasks response:', tasksRes.data)
-      setTasks(tasksRes.data.data || [])
-      
+      const tasksRes = await api.get(`/api/tasks/by-project/${projectId}`);
+      console.log("Tasks response:", tasksRes.data);
+      setTasks(tasksRes.data.data || []);
+
       // Load members separately to avoid one failure breaking everything
       try {
-        const projectRes = await api.get(`/api/projects/${projectId}/members`)
-        console.log('Members response:', projectRes.data)
-        setMembers(projectRes.data.data || [])
+        const projectRes = await api.get(`/api/projects/${projectId}/members`);
+
+        setMembers(projectRes.data.data || []);
       } catch (membersError) {
-        console.error('Failed to load members:', membersError)
-        setMembers([]) // Set empty array as fallback
+        console.error("Failed to load members:", membersError);
+        setMembers([]); // Set empty array as fallback
       }
     } catch (error) {
-      console.error('Failed to load project data:', error)
+      console.error("Failed to load project data:", error);
       // Set fallback data to prevent white screen
-      setTasks([])
-      setMembers([])
+      setTasks([]);
+      setMembers([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [projectId])
+  }, [projectId]);
 
   useEffect(() => {
-    if (!projectId) return
-    ;(async () => {
-      await load()
-    })()
-  }, [load, projectId])
+    if (!projectId) return;
+    (async () => {
+      await load();
+    })();
+  }, [load, projectId]);
 
-  
   const getStatusVariant = (status) => {
     switch (status) {
-      case 'todo':
-        return 'secondary'
-      case 'in_progress':
-        return 'default'
-      case 'done':
-        return 'destructive'
+      case "todo":
+        return "secondary";
+      case "in_progress":
+        return "default";
+      case "done":
+        return "destructive";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -77,16 +92,19 @@ export default function ProjectDetail() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">Project #{projectId}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {/* Project #{projectId} */}
+            Tên dự án: {projectCurrent.name || "Unknown"}
+          </h1>
           <p className="mt-2 text-sm text-gray-700">
-            Manage tasks and track progress for this project.
+            Quản lý các nhiệm vụ và theo dõi tiến độ của dự án này.
           </p>
         </div>
       </div>
@@ -96,24 +114,30 @@ export default function ProjectDetail() {
         <CardHeader>
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-blue-600" />
-            <CardTitle>Project Members</CardTitle>
+            <CardTitle>Thành viên dự án</CardTitle>
           </div>
           <CardDescription>
-            {members.length} member{members.length !== 1 ? 's' : ''} in this project
+            {members.length} thành viên{members.length !== 1 ? "s" : ""} in this
+            project
           </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Current Members */}
           <div className="mb-6">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Current Members:</h4>
+            <h4 className="text-sm font-medium text-gray-900 mb-3">
+              Thành viên hiện tại:
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {members.map((member) => (
-                <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div
+                  key={member._id}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                >
                   <div className="flex-shrink-0">
-                    {member.avatar_url ? (
+                    {member.avatarUrl ? (
                       <img
-                        src={member.avatar_url}
-                        alt={member.full_name || member.email}
+                        src={member.avatarUrl}
+                        alt={member.fullName || member.email}
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (
@@ -124,11 +148,15 @@ export default function ProjectDetail() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      {member.full_name || 'Unknown User'}
+                      {member.fullName || "Unknown User"}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{member.email}</p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {member.email}
+                    </p>
                   </div>
-                  <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
+                  <Badge
+                    variant={member.role === "owner" ? "default" : "secondary"}
+                  >
                     {member.role}
                   </Badge>
                 </div>
@@ -138,12 +166,15 @@ export default function ProjectDetail() {
 
           {/* Add New Members */}
           <div className="border-t pt-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Add New Members:</h4>
-            <MinimalAddMember 
-              projectId={projectId} 
+            <h4 className="text-sm font-medium text-gray-900 mb-3">
+              Thêm thành viên mới:
+            </h4>
+            <MinimalAddMember
+              projectId={projectId}
+              project={projectCurrent}
               onMemberAdded={() => {
                 // Reload members when new member is added
-                load()
+                load();
               }}
             />
           </div>
@@ -153,9 +184,9 @@ export default function ProjectDetail() {
       {/* Tasks Section */}
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Add New Task</CardTitle>
+          <CardTitle>Thêm công việc mới</CardTitle>
           <CardDescription>
-            Create a new task to add to this project
+            Tạo một công việc mới để thêm vào dự án này.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -168,10 +199,10 @@ export default function ProjectDetail() {
             />
             <Button
               onClick={async () => {
-                if (!title.trim()) return
-                await api.post('/api/tasks', { projectId, title })
-                setTitle('')
-                load()
+                if (!title.trim()) return;
+                await api.post("/api/tasks", { projectId, title });
+                setTitle("");
+                load();
               }}
             >
               Add Task
@@ -184,13 +215,15 @@ export default function ProjectDetail() {
         <CardHeader>
           <CardTitle>Tasks</CardTitle>
           <CardDescription>
-            {tasks.length} task{tasks.length !== 1 ? 's' : ''} in this project
+            {tasks.length} task{tasks.length !== 1 ? "s" : ""} in this project
           </CardDescription>
         </CardHeader>
         <CardContent>
           {tasks.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">No tasks yet. Create your first task!</p>
+              <p className="text-gray-500">
+                No tasks yet. Create your first task!
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -198,6 +231,8 @@ export default function ProjectDetail() {
                 <div
                   key={t.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => (window.location.href = `/tasks/${t.id}`)}
+                  style={{ cursor: "pointer" }}
                 >
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">
@@ -226,6 +261,8 @@ export default function ProjectDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* <Kanban projectId={projectId} /> */}
     </div>
-  )
+  );
 }

@@ -1,32 +1,38 @@
-import { useCallback, useEffect, useState } from 'react'
-import { api } from '../api/client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { LoadingSpinner } from '@/components/ui/loading'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useCallback, useEffect, useState } from "react";
+import { api } from "../../api/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { LoadingSpinner } from "@/components/ui/loading";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminProjects() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await api.get('/api/admin/projects')
-      setItems(res.data.data || [])
+      const res = await api.get("/api/admin/projects");
+      setItems(res.data.data || []);
     } catch (error) {
-      console.error('Failed to load projects:', error)
+      console.error("Failed to load projects:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    ;(async () => {
-      await load()
-    })()
-  }, [load])
+    (async () => {
+      await load();
+    })();
+  }, [load]);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -45,7 +51,7 @@ export default function AdminProjects() {
                 Refreshing...
               </>
             ) : (
-              'Refresh'
+              "Refresh"
             )}
           </Button>
         </div>
@@ -110,39 +116,43 @@ export default function AdminProjects() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {items.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {p.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {p.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {p.owner_email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant="secondary">
-                          {p.member_count || 0} members
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={async () => {
-                            if (window.confirm('Are you sure you want to delete this project?')) {
-                              await api.delete(`/api/admin/projects/${p.id}`)
-                              load()
-                            }
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      <tr key={p.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {p.id}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {p.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {p.owner_email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant="secondary">
+                            {p.member_count || 0} members
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={async () => {
+                              if (
+                                window.confirm(
+                                  "Are you sure you want to delete this project?",
+                                )
+                              ) {
+                                await api.delete(`/api/admin/projects/${p.id}`);
+                                load();
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
               {items.length === 0 && !loading && (
                 <div className="text-center py-12">
@@ -154,5 +164,5 @@ export default function AdminProjects() {
         </div>
       </div>
     </div>
-  )
+  );
 }
