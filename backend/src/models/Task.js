@@ -7,45 +7,60 @@ const taskSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    // mô tả công việc
     description: {
       type: String,
       default: null,
     },
+    // dự án công việc thuộc về
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
       required: true,
     },
+    // cột công việc thuộc về
+    column: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Column",
+      required: true,
+    },
+    // trạng thái công việc
     status: {
       type: String,
       enum: ["todo", "in_progress", "done", "archived"],
       default: "todo",
     },
+    // độ ưu tiên công việc
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
       default: "medium",
     },
+    // ngày hạn công việc
     dueDate: {
       type: Date,
       default: null,
     },
+    // người tạo công việc
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+    // người được giao công việc
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
+
     tags: [
       {
         type: String,
         trim: true,
       },
     ],
+    //
     attachments: [
       {
         originalName: String,
@@ -62,6 +77,7 @@ const taskSchema = new mongoose.Schema(
         },
       },
     ],
+    // metadata bổ sung cho công việc
     metadata: {
       estimatedHours: {
         type: Number,
@@ -77,6 +93,14 @@ const taskSchema = new mongoose.Schema(
       },
     },
     isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    color: {
+      type: String,
+      default: "#FFFFFF",
+    },
+    isArchived: {
       type: Boolean,
       default: false,
     },
