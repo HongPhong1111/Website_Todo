@@ -15,21 +15,12 @@ import {
   arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import { Plus, ListTodo, Clock, CheckCircle, Archive } from "lucide-react";
 
 import ContainerKanban from "./ContainerKanban";
 import ItemKanban from "./ItemKanban";
 
-const KanbanBoard = ({
-  project,
-  tasks = [],
-  onTaskCreate,
-  //   onTaskUpdate,
-  //   onTaskDelete,
-  onTaskMove,
-  //   loading = false,
-}) => {
+const KanbanBoard = ({ project, tasks = [], onTaskCreate, onTaskMove }) => {
   const [containers, setContainers] = useState([
     {
       id: "todo",
@@ -104,7 +95,6 @@ const KanbanBoard = ({
       const activeId = active.id.toString();
       const overId = over.id.toString();
 
-      // Moving task between containers
       if (activeId.includes("task_") && overId.includes("status_")) {
         const taskId = activeId.replace("task_", "");
         const newStatus = overId.replace("status_", "");
@@ -112,7 +102,6 @@ const KanbanBoard = ({
         onTaskMove?.(taskId, newStatus);
       }
 
-      // Moving task within container
       if (activeId.includes("task_") && overId.includes("task_")) {
         const activeContainer = containers.find((c) =>
           c.items.some((item) => `task_${item._id}` === activeId),
@@ -217,7 +206,6 @@ const KanbanBoard = ({
 
   const handleTaskClick = (task) => {
     console.log("Task clicked:", task);
-    // Implement task detail view
   };
 
   const getTaskById = (id) => {
@@ -231,160 +219,178 @@ const KanbanBoard = ({
   return (
     <div className="kanban-board">
       {/* Add Container Modal */}
-      <Modal
-        show={showContainerModal}
-        onHide={() => setShowContainerModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Add Column</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Column Title</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter column title"
-                value={containerForm.title}
-                onChange={(e) => setContainerForm({ title: e.target.value })}
-                autoFocus
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") handleAddContainer();
-                }}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowContainerModal(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleAddContainer}
-            disabled={!containerForm.title.trim()}
-          >
-            Add Column
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {showContainerModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Add Column
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Column Title
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter column title"
+                  value={containerForm.title}
+                  onChange={(e) => setContainerForm({ title: e.target.value })}
+                  autoFocus
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") handleAddContainer();
+                  }}
+                />
+              </div>
+            </div>
+            <div className="p-6 border-t flex justify-end gap-2">
+              <button
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={() => setShowContainerModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleAddContainer}
+                disabled={!containerForm.title.trim()}
+              >
+                Add Column
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Task Modal */}
-      <Modal
-        show={showTaskModal}
-        onHide={() => setShowTaskModal(false)}
-        centered
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Task</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Task Title *</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter task title"
-                value={taskForm.title}
-                onChange={(e) =>
-                  setTaskForm({ ...taskForm, title: e.target.value })
-                }
-                autoFocus
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter task description"
-                value={taskForm.description}
-                onChange={(e) =>
-                  setTaskForm({ ...taskForm, description: e.target.value })
-                }
-              />
-            </Form.Group>
-
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Priority</Form.Label>
-                  <Form.Select
-                    value={taskForm.priority}
+      {showTaskModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Add New Task
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Task Title *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter task title"
+                    value={taskForm.title}
                     onChange={(e) =>
-                      setTaskForm({ ...taskForm, priority: e.target.value })
+                      setTaskForm({ ...taskForm, title: e.target.value })
                     }
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Due Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={taskForm.dueDate}
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter task description"
+                    value={taskForm.description}
                     onChange={(e) =>
-                      setTaskForm({ ...taskForm, dueDate: e.target.value })
+                      setTaskForm({ ...taskForm, description: e.target.value })
                     }
                   />
-                </Form.Group>
-              </Col>
-            </Row>
+                </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Tags (comma separated)</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="e.g., bug, feature, ui"
-                value={taskForm.tags}
-                onChange={(e) =>
-                  setTaskForm({ ...taskForm, tags: e.target.value })
-                }
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowTaskModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleAddTask}
-            disabled={!taskForm.title.trim()}
-          >
-            Add Task
-          </Button>
-        </Modal.Footer>
-      </Modal>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Priority
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={taskForm.priority}
+                      onChange={(e) =>
+                        setTaskForm({ ...taskForm, priority: e.target.value })
+                      }
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Due Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={taskForm.dueDate}
+                      onChange={(e) =>
+                        setTaskForm({ ...taskForm, dueDate: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tags (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., bug, feature, ui"
+                    value={taskForm.tags}
+                    onChange={(e) =>
+                      setTaskForm({ ...taskForm, tags: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t flex justify-end gap-2">
+              <button
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={() => setShowTaskModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleAddTask}
+                disabled={!taskForm.title.trim()}
+              >
+                Add Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Controls */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="mb-0">{project?.name || "Project Board"}</h3>
+          <h3 className="text-2xl font-bold text-gray-900">
+            {project?.name || "Project Board"}
+          </h3>
           {project?.description && (
-            <p className="text-muted mb-0">{project.description}</p>
+            <p className="text-gray-600 mt-1">{project.description}</p>
           )}
         </div>
-        <div className="d-flex gap-2">
-          <Button
-            variant="outline-primary"
+        <div className="flex gap-2">
+          <button
+            className="px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 flex items-center gap-2"
             onClick={() => setShowContainerModal(true)}
-            className="d-flex align-items-center gap-2"
           >
             <Plus size={16} />
             Add Column
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -395,10 +401,10 @@ const KanbanBoard = ({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <Row>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <SortableContext items={containers.map((c) => c.id)}>
             {containers.map((container) => (
-              <Col key={container.id} lg={3} md={6} className="mb-4">
+              <div key={container.id}>
                 <ContainerKanban
                   id={container.id}
                   title={container.title}
@@ -423,7 +429,7 @@ const KanbanBoard = ({
                   <SortableContext
                     items={container.items.map((i) => `task_${i._id}`)}
                   >
-                    <div className="d-flex flex-column gap-2">
+                    <div className="flex flex-col gap-2">
                       {container.items.map((item) => (
                         <ItemKanban
                           key={item._id}
@@ -433,18 +439,20 @@ const KanbanBoard = ({
                         />
                       ))}
                       {container.items.length === 0 && (
-                        <div className="text-center py-4 text-muted">
-                          <p className="mb-0">No tasks yet</p>
-                          <small>Drag tasks here or click "Add Task"</small>
+                        <div className="text-center py-8 text-gray-400">
+                          <p className="mb-1">No tasks yet</p>
+                          <p className="text-sm">
+                            Drag tasks here or click "Add Task"
+                          </p>
                         </div>
                       )}
                     </div>
                   </SortableContext>
                 </ContainerKanban>
-              </Col>
+              </div>
             ))}
           </SortableContext>
-        </Row>
+        </div>
 
         <DragOverlay adjustScale={false}>
           {activeId && activeId.includes("task_") ? (
@@ -454,7 +462,7 @@ const KanbanBoard = ({
               isDraggable={false}
             />
           ) : activeId && activeId.includes("container") ? (
-            <div className="col-lg-3 col-md-6">
+            <div className="w-full md:w-1/2 lg:w-1/4">
               <ContainerKanban
                 id={activeId}
                 title={containers.find((c) => c.id === activeId)?.title || ""}
@@ -484,22 +492,21 @@ const KanbanBoard = ({
       </DndContext>
 
       {containers.length === 0 && (
-        <div className="text-center py-5">
-          <div className="mb-3">
-            <Plus size={48} className="text-muted" />
+        <div className="text-center py-12">
+          <div className="mb-4">
+            <Plus size={48} className="text-gray-400 mx-auto" />
           </div>
-          <h4 className="text-muted mb-2">No columns yet</h4>
-          <p className="text-muted mb-3">
+          <h4 className="text-gray-500 mb-2">No columns yet</h4>
+          <p className="text-gray-400 mb-4">
             Create your first column to get started
           </p>
-          <Button
-            variant="primary"
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2 mx-auto"
             onClick={() => setShowContainerModal(true)}
-            className="d-flex align-items-center gap-2 mx-auto"
           >
             <Plus size={16} />
             Create First Column
-          </Button>
+          </button>
         </div>
       )}
     </div>
