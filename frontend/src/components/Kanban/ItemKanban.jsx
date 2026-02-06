@@ -2,7 +2,6 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Card, Badge } from "react-bootstrap";
 import {
   GripVertical,
   Clock,
@@ -32,28 +31,28 @@ const ItemKanban = ({ id, task, onClick, isDraggable = true }) => {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
-        return "danger";
+        return "bg-red-100 text-red-800 border-red-200";
       case "medium":
-        return "warning";
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "low":
-        return "success";
+        return "bg-green-100 text-green-800 border-green-200";
       default:
-        return "secondary";
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBorderColor = (status) => {
     switch (status) {
       case "todo":
-        return "border-start-primary";
+        return "border-l-4 border-l-blue-500";
       case "in_progress":
-        return "border-start-warning";
+        return "border-l-4 border-l-yellow-500";
       case "done":
-        return "border-start-success";
+        return "border-l-4 border-l-green-500";
       case "archived":
-        return "border-start-secondary";
+        return "border-l-4 border-l-gray-500";
       default:
-        return "border-start-primary";
+        return "border-l-4 border-l-blue-500";
     }
   };
 
@@ -75,53 +74,61 @@ const ItemKanban = ({ id, task, onClick, isDraggable = true }) => {
       {...attributes}
       {...(isDraggable ? listeners : {})}
       onClick={() => onClick?.(task)}
-      className={`kanban-item ${isDragging ? "shadow" : ""}`}
+      className={`kanban-item ${isDragging ? "shadow-lg" : ""}`}
     >
-      <Card
-        className={`border-start border-3 ${getStatusColor(task.status)} ${isOverdue ? "border-danger" : ""}`}
+      <div
+        className={`bg-white rounded-md border border-gray-200 ${getStatusBorderColor(task.status)} ${
+          isOverdue ? "border-red-300" : ""
+        }`}
       >
-        <Card.Body className="p-3">
-          <div className="d-flex align-items-start gap-2">
+        <div className="p-3">
+          <div className="flex items-start gap-2">
             {isDraggable && (
-              <GripVertical size={16} className="text-muted mt-1" />
+              <GripVertical
+                size={16}
+                className="text-gray-400 mt-1 flex-shrink-0"
+              />
             )}
-            <div className="flex-grow-1">
-              <div className="d-flex justify-content-between align-items-start mb-2">
-                <h6 className="mb-0 fw-semibold">{task.title}</h6>
-                <Badge
-                  bg={getPriorityColor(task.priority)}
-                  className="d-flex align-items-center gap-1"
+            <div className="flex-grow min-w-0">
+              <div className="flex justify-between items-start mb-2">
+                <h6 className="mb-0 font-semibold text-gray-800 truncate">
+                  {task.title}
+                </h6>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${getPriorityColor(
+                    task.priority,
+                  )}`}
                 >
                   {task.priority === "high" && <AlertCircle size={12} />}
                   {task.priority}
-                </Badge>
+                </span>
               </div>
 
               {task.description && (
-                <p className="text-muted small mb-2">{task.description}</p>
+                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                  {task.description}
+                </p>
               )}
 
               {task.tags && task.tags.length > 0 && (
-                <div className="d-flex flex-wrap gap-1 mb-2">
+                <div className="flex flex-wrap gap-1 mb-2">
                   {task.tags.map((tag, index) => (
-                    <Badge
+                    <span
                       key={index}
-                      bg="light"
-                      text="dark"
-                      className="border d-flex align-items-center gap-1"
+                      className="px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded-md border border-gray-200 flex items-center gap-1"
                     >
                       <Tag size={10} />
                       {tag}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
               )}
 
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center gap-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
                   {task.assignedTo && (
                     <div
-                      className="avatar rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+                      className="rounded-full bg-blue-500 flex items-center justify-center text-white font-medium"
                       style={{
                         width: "24px",
                         height: "24px",
@@ -137,34 +144,34 @@ const ItemKanban = ({ id, task, onClick, isDraggable = true }) => {
                     </div>
                   )}
                   {task.dueDate && (
-                    <div className="d-flex align-items-center gap-1 text-muted small">
+                    <div className="flex items-center gap-1 text-gray-500 text-sm">
                       <Clock size={12} />
                       <span>{formatDate(task.dueDate)}</span>
                       {isOverdue && (
-                        <AlertCircle size={12} className="text-danger" />
+                        <AlertCircle size={12} className="text-red-500" />
                       )}
                     </div>
                   )}
                 </div>
 
-                <div className="d-flex align-items-center gap-1">
+                <div className="flex items-center gap-1">
                   {task.attachments?.length > 0 && (
-                    <div className="d-flex align-items-center gap-1 text-muted small">
+                    <div className="flex items-center gap-1 text-gray-500 text-sm">
                       <Paperclip size={12} />
                       <span>{task.attachments.length}</span>
                     </div>
                   )}
                   {task.metadata?.estimatedHours > 0 && (
-                    <Badge bg="info" className="small">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
                       {task.metadata.estimatedHours}h
-                    </Badge>
+                    </span>
                   )}
                 </div>
               </div>
             </div>
           </div>
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

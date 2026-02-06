@@ -1,4 +1,4 @@
-/* components/Kanban/Kanban.css */
+/* Thêm vào file CSS chính của bạn */
 .kanban-board {
   min-height: calc(100vh - 200px);
 }
@@ -9,7 +9,9 @@
 
 .kanban-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .kanban-item:active {
@@ -24,28 +26,26 @@
   cursor: grabbing;
 }
 
-.border-start-primary {
-  border-left-color: #0d6efd !important;
+/* Line clamp utility (nếu chưa có trong config) */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
-.border-start-warning {
-  border-left-color: #ffc107 !important;
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.border-start-success {
-  border-left-color: #198754 !important;
-}
-
-.border-start-secondary {
-  border-left-color: #6c757d !important;
-}
-
-.border-start-info {
-  border-left-color: #0dcaf0 !important;
-}
-
-.border-start-danger {
-  border-left-color: #dc3545 !important;
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .hover-effect:hover {

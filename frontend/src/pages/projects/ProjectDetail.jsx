@@ -4,7 +4,7 @@ import { api } from "../../api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import Kanban from "../../components/Kanban/ProjectBoard";
+import ProjectBoard from "../../components/Kanban/ProjectBoard";
 
 import {
   Card,
@@ -20,6 +20,8 @@ import { Users, Plus, Settings, User } from "lucide-react";
 export default function ProjectDetail() {
   const { id } = useParams();
   const projectId = id;
+
+  console.log("ProjectDetail component loaded id: ", projectId);
 
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
@@ -108,7 +110,6 @@ export default function ProjectDetail() {
           </p>
         </div>
       </div>
-
       {/* Members Section */}
       <Card className="mt-8">
         <CardHeader>
@@ -180,7 +181,6 @@ export default function ProjectDetail() {
           </div>
         </CardContent>
       </Card>
-
       {/* Tasks Section */}
       <Card className="mt-8">
         <CardHeader>
@@ -210,7 +210,6 @@ export default function ProjectDetail() {
           </div>
         </CardContent>
       </Card>
-
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Tasks</CardTitle>
@@ -261,8 +260,8 @@ export default function ProjectDetail() {
           )}
         </CardContent>
       </Card>
-
-      {/* <Kanban projectId={projectId} /> */}
+      cons
+      <ProjectBoard projectId={projectId} />
     </div>
   );
 }

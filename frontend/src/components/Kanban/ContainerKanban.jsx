@@ -2,7 +2,6 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Card, Button, Badge } from "react-bootstrap";
 import { Plus, GripVertical, MoreVertical } from "lucide-react";
 
 const ContainerKanban = ({
@@ -11,7 +10,6 @@ const ContainerKanban = ({
   title,
   count = 0,
   color = "primary",
-  // icon: IconCustom = Plus,
   onAddItem,
   onEdit,
   onDelete,
@@ -31,6 +29,15 @@ const ContainerKanban = ({
     },
   });
 
+  const colorClasses = {
+    primary: "border-blue-500 bg-blue-500",
+    warning: "border-yellow-500 bg-yellow-500",
+    success: "border-green-500 bg-green-500",
+    secondary: "border-gray-500 bg-gray-500",
+    info: "border-cyan-500 bg-cyan-500",
+    danger: "border-red-500 bg-red-500",
+  };
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -38,33 +45,33 @@ const ContainerKanban = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} className="h-100">
-      <Card
-        className={`h-100 border border-${color} ${isDragging ? "shadow-lg" : ""}`}
+    <div ref={setNodeRef} style={style} {...attributes} className="h-full">
+      <div
+        className={`h-full border-2 rounded-lg ${colorClasses[color].split(" ")[0]} ${
+          isDragging ? "shadow-xl" : "shadow-md"
+        }`}
       >
-        <Card.Header
-          className={`bg-${color} text-white py-3 ${isDraggable ? "cursor-grab" : ""}`}
+        <div
+          className={`p-4 ${colorClasses[color].split(" ")[1]} text-white rounded-t-lg ${
+            isDraggable ? "cursor-grab" : ""
+          }`}
           {...(isDraggable ? listeners : {})}
         >
-          <div className="d-flex align-items-center gap-2">
+          <div className="flex items-center gap-2">
             {isDraggable && (
-              <GripVertical size={18} className="text-white-50" />
+              <GripVertical size={18} className="text-white/80" />
             )}
-            {/* <IconCustom size={18} /> */}
-
             <Plus size={18} />
-            <h6 className="mb-0 fw-bold flex-grow-1">
-              {title}{" "}
-              <Badge bg="white" text="dark" className="ms-2">
+            <h6 className="mb-0 font-bold flex-grow flex items-center">
+              {title}
+              <span className="ml-2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full">
                 {count}
-              </Badge>
+              </span>
             </h6>
-            <div className="d-flex gap-1">
+            <div className="flex gap-1">
               {onAddItem && (
-                <Button
-                  variant="light"
-                  size="sm"
-                  className="p-1 d-flex align-items-center justify-content-center"
+                <button
+                  className="p-1 bg-white/20 hover:bg-white/30 rounded-md flex items-center justify-center transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     onAddItem();
@@ -73,25 +80,23 @@ const ContainerKanban = ({
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Plus size={16} />
-                </Button>
+                </button>
               )}
               {(onEdit || onDelete) && (
-                <div className="dropdown">
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className="p-1 d-flex align-items-center justify-content-center"
+                <div className="relative group">
+                  <button
+                    className="p-1 bg-white/20 hover:bg-white/30 rounded-md flex items-center justify-center transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                     }}
                   >
                     <MoreVertical size={16} />
-                  </Button>
-                  <div className="dropdown-menu dropdown-menu-end">
+                  </button>
+                  <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg border z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     {onEdit && (
                       <button
-                        className="dropdown-item"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md"
                         onClick={(e) => {
                           e.stopPropagation();
                           onEdit();
@@ -102,7 +107,7 @@ const ContainerKanban = ({
                     )}
                     {onDelete && (
                       <button
-                        className="dropdown-item text-danger"
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-md"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDelete();
@@ -116,19 +121,12 @@ const ContainerKanban = ({
               )}
             </div>
           </div>
-        </Card.Header>
-        <Card.Body className="p-3">
-          <div
-            className="d-flex flex-column gap-2"
-            style={{ minHeight: "100px" }}
-          >
-            {children}
-          </div>
+        </div>
+        <div className="p-3 bg-white rounded-b-lg">
+          <div className="flex flex-col gap-2 min-h-[100px]">{children}</div>
           {onAddItem && (
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              className="w-100 mt-3 d-flex align-items-center justify-content-center gap-2"
+            <button
+              className="w-full mt-3 p-2 border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
               onClick={(e) => {
                 e.stopPropagation();
                 onAddItem();
@@ -136,10 +134,10 @@ const ContainerKanban = ({
             >
               <Plus size={16} />
               Add Task
-            </Button>
+            </button>
           )}
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

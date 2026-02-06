@@ -29,7 +29,7 @@ const ProjectBoard = ({ projectId }) => {
 
       // Cập nhật state
       setProject(projectData.data || projectData);
-      setTasks(tasksData.data || tasksData || []);
+      setTasks(tasksData.data?.data || []);
     } catch (err) {
       setError(err.message || "Failed to load project data");
       console.error("Error fetching project data:", err);
