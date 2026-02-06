@@ -1,15 +1,15 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import RequireAuth from './auth/RequireAuth'
-import Layout from './layout/Layout'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Projects from './pages/Projects'
-import ProjectDetail from './pages/ProjectDetail'
-import TaskDetail from './pages/TaskDetail'
-import Notifications from './pages/Notifications'
-import AdminDashboard from './pages/AdminDashboard'
-import AdminUsers from './pages/AdminUsers'
-import AdminProjects from './pages/AdminProjects'
+import { Navigate, Route, Routes } from "react-router-dom";
+import RequireAuth from "./auth/RequireAuth";
+import Layout from "./layout/Layout";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import Projects from "./pages/projects/Projects";
+import ProjectDetail from "./pages/projects/ProjectDetail";
+import TaskDetail from "./pages/projects/TaskDetail";
+import Notifications from "./pages/Notifications";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminProjects from "./pages/admin/AdminProjects";
 
 export default function App() {
   return (
@@ -39,5 +39,5 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
+  );
 }

@@ -1,32 +1,38 @@
-import { useCallback, useEffect, useState } from 'react'
-import { api } from '../api/client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { LoadingSpinner } from '@/components/ui/loading'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useCallback, useEffect, useState } from "react";
+import { api } from "../../api/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { LoadingSpinner } from "@/components/ui/loading";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminUsers() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await api.get('/api/admin/users')
-      setItems(res.data.data || [])
+      const res = await api.get("/api/admin/users");
+      setItems(res.data.data || []);
     } catch (error) {
-      console.error('Failed to load users:', error)
+      console.error("Failed to load users:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    ;(async () => {
-      await load()
-    })()
-  }, [load])
+    (async () => {
+      await load();
+    })();
+  }, [load]);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -45,7 +51,7 @@ export default function AdminUsers() {
                 Refreshing...
               </>
             ) : (
-              'Refresh'
+              "Refresh"
             )}
           </Button>
         </div>
@@ -113,55 +119,61 @@ export default function AdminUsers() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {items.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {u.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {u.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant={u.role === 'admin' ? 'destructive' : 'secondary'}>
-                          {u.role}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant={u.is_active ? 'default' : 'secondary'}>
-                          {u.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={async () => {
-                              await api.patch(`/api/admin/users/${u.id}`, { 
-                                role: u.role === 'admin' ? 'user' : 'admin' 
-                              })
-                              load()
-                            }}
+                      <tr key={u.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {u.id}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {u.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge
+                            variant={
+                              u.role === "admin" ? "destructive" : "secondary"
+                            }
                           >
-                            Toggle Role
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={async () => {
-                              await api.patch(`/api/admin/users/${u.id}`, { 
-                                isActive: !u.is_active 
-                              })
-                              load()
-                            }}
+                            {u.role}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge
+                            variant={u.is_active ? "default" : "secondary"}
                           >
-                            Toggle Active
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            {u.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={async () => {
+                                await api.patch(`/api/admin/users/${u.id}`, {
+                                  role: u.role === "admin" ? "user" : "admin",
+                                });
+                                load();
+                              }}
+                            >
+                              Toggle Role
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={async () => {
+                                await api.patch(`/api/admin/users/${u.id}`, {
+                                  isActive: !u.is_active,
+                                });
+                                load();
+                              }}
+                            >
+                              Toggle Active
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
               {items.length === 0 && !loading && (
                 <div className="text-center py-12">
@@ -173,5 +185,5 @@ export default function AdminUsers() {
         </div>
       </div>
     </div>
-  )
+  );
 }

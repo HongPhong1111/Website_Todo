@@ -1,39 +1,81 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
+const User = require("../models/User");
+const { env } = require("../config/env");
 
-const { query, pool } = require('../config/db');
+async function seedAdmin() {
+  try {
+    // Connect to MongoDB
+    await mongoose.connect(env.db.uri, {
+      dbName: env.db.database,
+    });
+    console.log("✅ Connected to MongoDB for seeding");
 
-async function main() {
-  const email = process.env.SEED_ADMIN_EMAIL || 'admin@todo.local';
-  const password = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+    const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@todo.local";
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD || "admin123";
+    const adminFullName = process.env.SEED_ADMIN_NAME || "System Administrator";
 
-  const existed = await query('SELECT id FROM users WHERE email = :email LIMIT 1', { email });
-  if (existed.length) {
-    await query("UPDATE users SET role = 'admin', is_active = 1 WHERE email = :email", { email });
-    // eslint-disable-next-line no-console
-    console.log(`Admin already exists, promoted to admin: ${email}`);
-    return;
+    // Check if admin already exists
+    let admin = await User.findOne({ email: adminEmail });
+
+    if (admin) {
+      // Update existing admin
+      admin.role = "admin";
+      admin.isActive = true;
+      admin.fullName = adminFullName;
+
+      // Update password if provided and different
+      if (adminPassword !== "admin123") {
+        const passwordHash = await bcrypt.hash(adminPassword, 10);
+        admin.passwordHash = passwordHash;
+      }
+
+      await admin.save();
+      console.log(`✅ Admin user updated: ${adminEmail}`);
+      console.log(`   Role: ${admin.role}`);
+      console.log(`   Status: ${admin.isActive ? "Active" : "Inactive"}`);
+    } else {
+      // Create new admin
+      const passwordHash = await bcrypt.hash(adminPassword, 10);
+
+      admin = await User.create({
+        email: adminEmail,
+        passwordHash,
+        fullName: adminFullName,
+        provider: "local",
+        role: "admin",
+        isActive: true,
+      });
+
+      console.log(`✅ Admin user created: ${adminEmail}`);
+      console.log(`   ID: ${admin._id}`);
+      console.log(`   Password: ${adminPassword}`);
+    }
+
+    // Display admin info
+    console.log("\n📋 ADMIN ACCOUNT INFO:");
+    console.log("=".repeat(40));
+    console.log(`Email: ${adminEmail}`);
+    console.log(`Password: ${adminPassword}`);
+    console.log(`Role: ${admin.role}`);
+    console.log(`ID: ${admin._id}`);
+    console.log("=".repeat(40));
+    console.log(
+      "\n⚠️  IMPORTANT: Change the default password after first login!",
+    );
+  } catch (error) {
+    console.error("❌ Error seeding admin:", error.message);
+    console.error(error.stack);
+    process.exit(1);
+  } finally {
+    // Close connection
+    await mongoose.connection.close();
+    console.log("\n✅ MongoDB connection closed");
   }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const result = await query(
-    "INSERT INTO users (email, password_hash, full_name, provider, role) VALUES (:email, :passwordHash, :fullName, 'local', 'admin')",
-    { email, passwordHash, fullName: 'Admin' }
-  );
-
-  // eslint-disable-next-line no-console
-  console.log(`Created admin id=${result.insertId} email=${email} password=${password}`);
 }
 
-main()
-  .catch((e) => {
-    // eslint-disable-next-line no-console
-    console.error(e);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    try {
-      await pool.end();
-    } catch (e) {
-      // ignore
-    }
-  });
+// Run seed function
+seedAdmin().catch((error) => {
+  console.error("❌ Failed to seed admin:", error);
+  process.exit(1);
+});

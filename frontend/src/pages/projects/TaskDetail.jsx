@@ -1,77 +1,85 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { api } from '../api/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { api } from "../../api/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function TaskDetail() {
-  const { id } = useParams()
-  const taskId = Number(id)
+  const { id } = useParams();
+  const taskId = Number(id);
 
-  const [task, setTask] = useState(null)
-  const [comments, setComments] = useState([])
-  const [attachments, setAttachments] = useState([])
-  const [newComment, setNewComment] = useState('')
-  const [error, setError] = useState('')
+  const [task, setTask] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [error, setError] = useState("");
 
   const uploadsBase = useMemo(() => {
-    const base = (import.meta.env.VITE_API_BASE || 'http://localhost:4000').replace(/\/$/, '')
-    return base
-  }, [])
+    const base = (
+      import.meta.env.VITE_API_BASE || "http://localhost:5000"
+    ).replace(/\/$/, "");
+    return base;
+  }, []);
 
   const load = useCallback(async () => {
     const [tRes, cRes, aRes] = await Promise.all([
       api.get(`/api/tasks/${taskId}`),
       api.get(`/api/tasks/${taskId}/comments`),
       api.get(`/api/tasks/${taskId}/attachments`),
-    ])
+    ]);
 
-    setTask(tRes.data.data)
-    setComments(cRes.data.data || [])
-    setAttachments(aRes.data.data || [])
-  }, [taskId])
+    setTask(tRes.data.data);
+    setComments(cRes.data.data || []);
+    setAttachments(aRes.data.data || []);
+  }, [taskId]);
 
   useEffect(() => {
-    if (!taskId) return
-    ;(async () => {
+    if (!taskId) return;
+    (async () => {
       try {
-        setError('')
-        await load()
+        setError("");
+        await load();
       } catch {
-        setError('Failed to load task')
+        setError("Failed to load task");
       }
-    })()
-  }, [load, taskId])
+    })();
+  }, [load, taskId]);
 
-  if (!taskId) return <div className="p-4">Invalid task</div>
+  if (!taskId) return <div className="p-4">Invalid task</div>;
 
   const getStatusVariant = (status) => {
     switch (status) {
-      case 'todo':
-        return 'secondary'
-      case 'in_progress':
-        return 'default'
-      case 'done':
-        return 'destructive'
+      case "todo":
+        return "secondary";
+      case "in_progress":
+        return "default";
+      case "done":
+        return "destructive";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
   const getPriorityVariant = (priority) => {
     switch (priority) {
-      case 'low':
-        return 'secondary'
-      case 'medium':
-        return 'default'
-      case 'high':
-        return 'destructive'
+      case "low":
+        return "secondary";
+      case "medium":
+        return "default";
+      case "high":
+        return "destructive";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -97,7 +105,7 @@ export default function TaskDetail() {
                     Task #{task.id}: {task.title}
                   </CardTitle>
                   <CardDescription className="mt-2">
-                    {task.description || 'No description provided'}
+                    {task.description || "No description provided"}
                   </CardDescription>
                 </div>
                 <div className="flex space-x-2">
@@ -113,19 +121,19 @@ export default function TaskDetail() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium">Created by:</span>{' '}
+                  <span className="font-medium">Created by:</span>{" "}
                   {task.created_by_email}
                 </div>
                 <div>
-                  <span className="font-medium">Assigned to:</span>{' '}
-                  {task.assigned_to_email || 'Unassigned'}
+                  <span className="font-medium">Assigned to:</span>{" "}
+                  {task.assigned_to_email || "Unassigned"}
                 </div>
                 <div>
-                  <span className="font-medium">Created at:</span>{' '}
+                  <span className="font-medium">Created at:</span>{" "}
                   {new Date(task.created_at).toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium">Updated at:</span>{' '}
+                  <span className="font-medium">Updated at:</span>{" "}
                   {new Date(task.updated_at).toLocaleString()}
                 </div>
               </div>
@@ -137,7 +145,7 @@ export default function TaskDetail() {
               <CardHeader>
                 <CardTitle>Comments</CardTitle>
                 <CardDescription>
-                  {comments.length} comment{comments.length !== 1 ? 's' : ''}
+                  {comments.length} comment{comments.length !== 1 ? "s" : ""}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -151,10 +159,12 @@ export default function TaskDetail() {
                     />
                     <Button
                       onClick={async () => {
-                        if (!newComment.trim()) return
-                        await api.post(`/api/tasks/${taskId}/comments`, { content: newComment })
-                        setNewComment('')
-                        load()
+                        if (!newComment.trim()) return;
+                        await api.post(`/api/tasks/${taskId}/comments`, {
+                          content: newComment,
+                        });
+                        setNewComment("");
+                        load();
                       }}
                     >
                       Send
@@ -176,7 +186,9 @@ export default function TaskDetail() {
                       </div>
                     ))}
                     {comments.length === 0 && (
-                      <p className="text-center text-gray-500 py-4">No comments yet</p>
+                      <p className="text-center text-gray-500 py-4">
+                        No comments yet
+                      </p>
                     )}
                   </div>
                 </div>
@@ -187,7 +199,7 @@ export default function TaskDetail() {
               <CardHeader>
                 <CardTitle>Attachments</CardTitle>
                 <CardDescription>
-                  {attachments.length} file{attachments.length !== 1 ? 's' : ''}
+                  {attachments.length} file{attachments.length !== 1 ? "s" : ""}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -196,17 +208,17 @@ export default function TaskDetail() {
                     <Input
                       type="file"
                       onChange={async (e) => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
+                        const file = e.target.files?.[0];
+                        if (!file) return;
 
-                        const fd = new FormData()
-                        fd.append('file', file)
+                        const fd = new FormData();
+                        fd.append("file", file);
                         await api.post(`/api/tasks/${taskId}/attachments`, fd, {
-                          headers: { 'Content-Type': 'multipart/form-data' },
-                        })
+                          headers: { "Content-Type": "multipart/form-data" },
+                        });
 
-                        e.target.value = ''
-                        load()
+                        e.target.value = "";
+                        load();
                       }}
                     />
                   </div>
@@ -231,7 +243,9 @@ export default function TaskDetail() {
                       </div>
                     ))}
                     {attachments.length === 0 && (
-                      <p className="text-center text-gray-500 py-4">No attachments yet</p>
+                      <p className="text-center text-gray-500 py-4">
+                        No attachments yet
+                      </p>
                     )}
                   </div>
                 </div>
@@ -241,5 +255,5 @@ export default function TaskDetail() {
         </>
       )}
     </div>
-  )
+  );
 }

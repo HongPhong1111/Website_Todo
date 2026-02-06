@@ -1,34 +1,63 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { api } from '../api/client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { LoadingSpinner, LoadingCard } from '@/components/ui/loading'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Users, FolderOpen, CheckSquare, TrendingUp, Activity, Clock, Star, ArrowUp, ArrowDown } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { api } from "../../api/client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { LoadingSpinner, LoadingCard } from "@/components/ui/loading";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Users,
+  FolderOpen,
+  CheckSquare,
+  TrendingUp,
+  Activity,
+  Clock,
+  Star,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+} from "recharts";
 
 export default function AdminDashboard() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await api.get('/api/admin/dashboard')
-      setData(res.data)
+      const res = await api.get("/api/admin/dashboard");
+      setData(res.data);
     } catch (error) {
-      console.error('Failed to load dashboard data:', error)
+      console.error("Failed to load dashboard data:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    ;(async () => {
-      await load()
-    })()
-  }, [load])
+    (async () => {
+      await load();
+    })();
+  }, [load]);
 
   if (loading) {
     return (
@@ -39,103 +68,109 @@ export default function AdminDashboard() {
             <Skeleton className="h-4 w-96" />
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
           {[1, 2, 3].map((i) => (
             <LoadingCard key={i} />
           ))}
         </div>
-        
+
         <LoadingCard />
       </div>
-    )
+    );
   }
 
   const stats = [
     {
-      title: 'Total Users',
+      title: "Total Users",
       value: data.users,
-      description: 'Registered users in system',
-      link: '/admin/users',
+      description: "Registered users in system",
+      link: "/admin/users",
       icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      change: '+12%',
-      changeType: 'increase'
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+      change: "+12%",
+      changeType: "increase",
     },
     {
-      title: 'Total Projects',
+      title: "Total Projects",
       value: data.projects,
-      description: 'Active projects',
-      link: '/admin/projects',
+      description: "Active projects",
+      link: "/admin/projects",
       icon: FolderOpen,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-      change: '+8%',
-      changeType: 'increase'
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+      change: "+8%",
+      changeType: "increase",
     },
     {
-      title: 'Total Tasks',
+      title: "Total Tasks",
       value: data.tasks,
-      description: 'All tasks across projects',
+      description: "All tasks across projects",
       icon: CheckSquare,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      change: '+23%',
-      changeType: 'increase'
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
+      change: "+23%",
+      changeType: "increase",
     },
-  ]
+  ];
 
-  const taskStatusData = data.tasksByStatus?.map(item => ({
-    name: item.status.replace('_', ' '),
-    value: item.cnt,
-    color: item.status === 'done' ? '#10B981' : item.status === 'in_progress' ? '#3B82F6' : '#6B7280'
-  })) || []
+  const taskStatusData =
+    data.tasksByStatus?.map((item) => ({
+      name: item.status.replace("_", " "),
+      value: item.cnt,
+      color:
+        item.status === "done"
+          ? "#10B981"
+          : item.status === "in_progress"
+            ? "#3B82F6"
+            : "#6B7280",
+    })) || [];
 
   const recentActivity = [
-    { name: 'Mon', tasks: 12, projects: 3 },
-    { name: 'Tue', tasks: 19, projects: 5 },
-    { name: 'Wed', tasks: 15, projects: 2 },
-    { name: 'Thu', tasks: 25, projects: 8 },
-    { name: 'Fri', tasks: 22, projects: 6 },
-    { name: 'Sat', tasks: 8, projects: 1 },
-    { name: 'Sun', tasks: 5, projects: 1 },
-  ]
+    { name: "Mon", tasks: 12, projects: 3 },
+    { name: "Tue", tasks: 19, projects: 5 },
+    { name: "Wed", tasks: 15, projects: 2 },
+    { name: "Thu", tasks: 25, projects: 8 },
+    { name: "Fri", tasks: 22, projects: 6 },
+    { name: "Sat", tasks: 8, projects: 1 },
+    { name: "Sun", tasks: 5, projects: 1 },
+  ];
 
   const quickStats = [
     {
-      title: 'Completion Rate',
-      value: '78%',
-      description: 'Tasks completed this week',
+      title: "Completion Rate",
+      value: "78%",
+      description: "Tasks completed this week",
       icon: CheckSquare,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
+      color: "text-green-600",
+      bgColor: "bg-green-100",
     },
     {
-      title: 'Active Projects',
-      value: '12',
-      description: 'Projects with activity',
+      title: "Active Projects",
+      value: "12",
+      description: "Projects with activity",
       icon: Activity,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
     },
     {
-      title: 'Avg Response Time',
-      value: '2.4h',
-      description: 'Average task response time',
+      title: "Avg Response Time",
+      value: "2.4h",
+      description: "Average task response time",
       icon: Clock,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100'
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
     },
     {
-      title: 'Satisfaction Score',
-      value: '4.8',
-      description: 'User satisfaction rating',
+      title: "Satisfaction Score",
+      value: "4.8",
+      description: "User satisfaction rating",
       icon: Star,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100'
-    }
-  ]
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
+    },
+  ];
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -155,7 +190,9 @@ export default function AdminDashboard() {
 
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">System Overview</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            System Overview
+          </h1>
           <p className="mt-2 text-sm text-gray-700">
             Real-time metrics and performance indicators
           </p>
@@ -172,7 +209,7 @@ export default function AdminDashboard() {
                 Refreshing...
               </>
             ) : (
-              'Refresh'
+              "Refresh"
             )}
           </button>
         </div>
@@ -180,31 +217,41 @@ export default function AdminDashboard() {
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {quickStats.map((stat) => {
-          const Icon = stat.icon
+          const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="hover:shadow-md transition-shadow">
+            <Card
+              key={stat.title}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <div className={`p-2 rounded-lg ${stat.bgColor}`}>
                     <Icon className={`h-5 w-5 ${stat.color}`} />
                   </div>
                   <div className="ml-3 flex-1">
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-lg font-semibold text-gray-900">{stat.value}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      {stat.title}
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {stat.value}
+                    </p>
                     <p className="text-xs text-gray-500">{stat.description}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          )
+          );
         })}
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => {
-          const Icon = stat.icon
+          const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={stat.title}
+              className="hover:shadow-lg transition-shadow"
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -216,10 +263,14 @@ export default function AdminDashboard() {
                       <CardDescription>{stat.description}</CardDescription>
                     </div>
                   </div>
-                  <div className={`flex items-center text-sm font-medium ${
-                    stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {stat.changeType === 'increase' ? (
+                  <div
+                    className={`flex items-center text-sm font-medium ${
+                      stat.changeType === "increase"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {stat.changeType === "increase" ? (
                       <ArrowUp className="h-4 w-4 mr-1" />
                     ) : (
                       <ArrowDown className="h-4 w-4 mr-1" />
@@ -230,11 +281,13 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-baseline">
-                  <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-3xl font-bold text-gray-900">
+                    {stat.value}
+                  </div>
                   <div className="ml-2 text-sm text-gray-500">
-                    {stat.title === 'Total Users' && 'users'}
-                    {stat.title === 'Total Projects' && 'projects'}
-                    {stat.title === 'Total Tasks' && 'tasks'}
+                    {stat.title === "Total Users" && "users"}
+                    {stat.title === "Total Projects" && "projects"}
+                    {stat.title === "Total Tasks" && "tasks"}
                   </div>
                 </div>
                 {stat.link && (
@@ -248,7 +301,7 @@ export default function AdminDashboard() {
                 )}
               </CardContent>
             </Card>
-          )
+          );
         })}
       </div>
 
@@ -263,49 +316,52 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-6">
               {data.tasksByStatus?.map((item) => {
-                const total = data.tasks
-                const percentage = total > 0 ? Math.round((item.cnt / total) * 100) : 0
-                
+                const total = data.tasks;
+                const percentage =
+                  total > 0 ? Math.round((item.cnt / total) * 100) : 0;
+
                 return (
                   <div key={item.status} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <Badge
                           variant={
-                            item.status === 'done'
-                              ? 'destructive'
-                              : item.status === 'in_progress'
-                              ? 'default'
-                              : 'secondary'
+                            item.status === "done"
+                              ? "destructive"
+                              : item.status === "in_progress"
+                                ? "default"
+                                : "secondary"
                           }
                         >
                           {item.status}
                         </Badge>
                         <span className="text-sm font-medium capitalize">
-                          {item.status.replace('_', ' ')}
+                          {item.status.replace("_", " ")}
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className="text-2xl font-bold text-gray-900">
                           {item.cnt}
                         </span>
-                        <span className="text-sm text-gray-500">({percentage}%)</span>
+                        <span className="text-sm text-gray-500">
+                          ({percentage}%)
+                        </span>
                       </div>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full transition-all duration-500 ${
-                          item.status === 'done'
-                            ? 'bg-red-500'
-                            : item.status === 'in_progress'
-                            ? 'bg-blue-500'
-                            : 'bg-gray-400'
+                          item.status === "done"
+                            ? "bg-red-500"
+                            : item.status === "in_progress"
+                              ? "bg-blue-500"
+                              : "bg-gray-400"
                         }`}
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           </CardContent>
@@ -326,7 +382,9 @@ export default function AdminDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -356,17 +414,17 @@ export default function AdminDashboard() {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Line 
-                type="monotone" 
-                dataKey="tasks" 
-                stroke="#3B82F6" 
+              <Line
+                type="monotone"
+                dataKey="tasks"
+                stroke="#3B82F6"
                 strokeWidth={2}
                 name="Tasks"
               />
-              <Line 
-                type="monotone" 
-                dataKey="projects" 
-                stroke="#10B981" 
+              <Line
+                type="monotone"
+                dataKey="projects"
+                stroke="#10B981"
                 strokeWidth={2}
                 name="Projects"
               />
@@ -375,5 +433,5 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

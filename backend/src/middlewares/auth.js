@@ -1,27 +1,89 @@
-const { verifyAccessToken } = require('../utils/jwt');
+const jwt = require("jsonwebtoken");
+const { env } = require("../config/env");
 
-function authRequired(req, res, next) {
-  const header = req.headers.authorization || '';
-  const [type, token] = header.split(' ');
-
-  if (type !== 'Bearer' || !token) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
+const authRequired = (req, res, next) => {
   try {
-    const payload = verifyAccessToken(token);
-    req.user = payload;
-    return next();
-  } catch (e) {
-    return res.status(401).json({ message: 'Invalid token' });
-  }
-}
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "No token provided",
+      });
+    }
 
-function adminOnly(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-  return next();
-}
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, env.jwt.secret);
 
-module.exports = { authRequired, adminOnly };
+    req.user = {
+      userId: decoded.userId,
+      role: decoded.role,
+      email: decoded.email,
+      fullName: decoded.fullName,
+      avatarUrl: decoded.avatarUrl,
+    };
+
+    next();
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        message: "Token expired",
+      });
+    }
+    return res.status(401).json({
+      message: "Invalid token",
+    });
+  }
+};
+
+const adminOnly = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({
+      message: "Admin access required",
+    });
+  }
+  next();
+};
+
+const projectMember = async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user.userId;
+
+    const project = await Project.findById(projectId);
+    if (!project || !project.isMember(userId)) {
+      return res.status(403).json({
+        message: "Access denied",
+      });
+    }
+
+    req.project = project;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const projectEditor = async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user.userId;
+
+    const project = await Project.findById(projectId);
+    if (!project || !project.canEdit(userId)) {
+      return res.status(403).json({
+        message: "Permission denied",
+      });
+    }
+
+    req.project = project;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  authRequired,
+  adminOnly,
+  projectMember,
+  projectEditor,
+};
