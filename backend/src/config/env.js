@@ -19,12 +19,12 @@ const env = {
   },
 
   jwt: {
-    secret: required("JWT_SECRET"),
+    secret: required("JWT_SECRET" || "todo_secret_2026_!@#_phong"),
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
 
   google: {
-    clientId: required("GOOGLE_CLIENT_ID"),
+    clientId: required("GOOGLE_CLIENT_ID" || "240890567413-8nfk6v9g0rlj6gilah9u51jdgav3o6r7.apps.googleusercontent.com"),
   },
 };
 
