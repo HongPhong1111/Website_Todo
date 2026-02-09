@@ -185,6 +185,8 @@ const io = new Server(server, {
   transports: ["websocket", "polling"],
 });
 
+app.set("io", io);
+
 // Initialize Socket.IO
 console.log("⚡ Initializing Socket.IO...");
 registerSocket(io);

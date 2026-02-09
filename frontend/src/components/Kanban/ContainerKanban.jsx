@@ -1,6 +1,7 @@
 // components/Kanban/ContainerKanban.jsx
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Plus, GripVertical, MoreVertical } from "lucide-react";
 
@@ -29,14 +30,14 @@ const ContainerKanban = ({
     },
   });
 
-  const colorClasses = {
-    primary: "border-blue-500 bg-blue-500",
-    warning: "border-yellow-500 bg-yellow-500",
-    success: "border-green-500 bg-green-500",
-    secondary: "border-gray-500 bg-gray-500",
-    info: "border-cyan-500 bg-cyan-500",
-    danger: "border-red-500 bg-red-500",
-  };
+  // Thêm useDroppable cho dropzone
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `dropzone_${id.replace("container_", "")}`,
+    data: {
+      type: "dropzone",
+      containerId: id.replace("container_", ""),
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -47,15 +48,21 @@ const ContainerKanban = ({
   return (
     <div ref={setNodeRef} style={style} {...attributes} className="h-full">
       <div
-        className={`h-full border-2 rounded-lg ${colorClasses[color].split(" ")[0]} ${
+        className={`h-full border-2 rounded-lg ${
           isDragging ? "shadow-xl" : "shadow-md"
+        } ${
+          isOver
+            ? "border-blue-500 border-dashed bg-blue-50"
+            : "border-gray-200"
         }`}
+        style={{ color: color }}
       >
         <div
-          className={`p-4 ${colorClasses[color].split(" ")[1]} text-white rounded-t-lg ${
+          className={`p-4 text-white rounded-t-lg ${
             isDraggable ? "cursor-grab" : ""
           }`}
           {...(isDraggable ? listeners : {})}
+          style={{ backgroundColor: color }}
         >
           <div className="flex items-center gap-2">
             {isDraggable && (
@@ -122,8 +129,23 @@ const ContainerKanban = ({
             </div>
           </div>
         </div>
-        <div className="p-3 bg-white rounded-b-lg">
-          <div className="flex flex-col gap-2 min-h-[100px]">{children}</div>
+
+        {/* Thêm dropzone ref vào phần nội dung */}
+        <div
+          ref={setDropRef}
+          className="p-3 bg-white rounded-b-lg min-h-[200px] flex flex-col"
+        >
+          <div className="flex flex-col gap-2 flex-grow">
+            {children}
+
+            {/* Hiển thị dropzone indicator khi không có task */}
+            {count === 0 && isOver && (
+              <div className="flex-1 flex items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-4 bg-blue-50/50 my-2">
+                <p className="text-blue-600 font-medium">Drop task here</p>
+              </div>
+            )}
+          </div>
+
           {onAddItem && (
             <button
               className="w-full mt-3 p-2 border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-gray-400 hover:text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"

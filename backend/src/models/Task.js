@@ -24,11 +24,9 @@ const taskSchema = new mongoose.Schema(
       ref: "Column",
       required: true,
     },
-    // trạng thái công việc
-    status: {
-      type: String,
-      enum: ["todo", "in_progress", "done", "archived"],
-      default: "todo",
+    position: {
+      type: Number,
+      required: true,
     },
     // độ ưu tiên công việc
     priority: {
@@ -48,11 +46,13 @@ const taskSchema = new mongoose.Schema(
       required: true,
     },
     // người được giao công việc
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
+    assignedTo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+    ],
 
     tags: [
       {
@@ -60,7 +60,7 @@ const taskSchema = new mongoose.Schema(
         trim: true,
       },
     ],
-    //
+    // 
     attachments: [
       {
         originalName: String,
@@ -118,6 +118,7 @@ taskSchema.index({ dueDate: 1 });
 taskSchema.index({ priority: 1 });
 taskSchema.index({ status: 1 });
 taskSchema.index({ title: "text", description: "text" });
+taskSchema.index({ column: 1, position: 1 });
 
 // Virtual for overdue status
 taskSchema.virtual("isOverdue").get(function () {

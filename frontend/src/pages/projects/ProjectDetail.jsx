@@ -24,7 +24,6 @@ export default function ProjectDetail() {
   console.log("ProjectDetail component loaded id: ", projectId);
 
   const [tasks, setTasks] = useState([]);
-  const [title, setTitle] = useState("");
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +36,8 @@ export default function ProjectDetail() {
 
       //load project current
       const projectRes = await api.get(`/api/projects/${projectId}`);
+
+      console.log("Project response:", projectRes.data);
 
       setProjectCurrent(projectRes.data.data);
 
@@ -181,35 +182,7 @@ export default function ProjectDetail() {
           </div>
         </CardContent>
       </Card>
-      {/* Tasks Section */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Thêm công việc mới</CardTitle>
-          <CardDescription>
-            Tạo một công việc mới để thêm vào dự án này.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <Input
-              placeholder="New task title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              onClick={async () => {
-                if (!title.trim()) return;
-                await api.post("/api/tasks", { projectId, title });
-                setTitle("");
-                load();
-              }}
-            >
-              Add Task
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Tasks</CardTitle>
@@ -260,7 +233,7 @@ export default function ProjectDetail() {
           )}
         </CardContent>
       </Card>
-      cons
+
       <ProjectBoard projectId={projectId} />
     </div>
   );

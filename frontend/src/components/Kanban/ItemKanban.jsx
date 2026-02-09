@@ -74,7 +74,7 @@ const ItemKanban = ({ id, task, onClick, isDraggable = true }) => {
       {...attributes}
       {...(isDraggable ? listeners : {})}
       onClick={() => onClick?.(task)}
-      className={`kanban-item ${isDragging ? "shadow-lg" : ""}`}
+      className={`cursor-pointer kanban-item ${isDragging ? "shadow-lg" : ""}`}
     >
       <div
         className={`bg-white rounded-md border border-gray-200 ${getStatusBorderColor(task.status)} ${

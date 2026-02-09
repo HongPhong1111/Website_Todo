@@ -23,7 +23,8 @@ class ProjectController {
         ...project.toObject(),
         memberCount: project.members.length,
         canEdit: project.canEdit(userId),
-        isOwner: project.owner._id.toString() === userId,
+        isOwner: project.isOwner(userId),
+        userRole: project.getUserRole(userId),
       }));
 
       return res.json({
@@ -94,9 +95,10 @@ class ProjectController {
       console.log("projectId", projectId);
       console.log("userId", userId);
 
-      const project = await Project.findById(projectId)
-        .populate("owner", "email fullName avatarUrl")
-        .populate("members.user", "email fullName avatarUrl");
+      const project = await Project.findById(projectId).populate(
+        "members.user",
+        "email fullName avatarUrl",
+      );
 
       if (!project) {
         return res.status(404).json({

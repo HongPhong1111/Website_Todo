@@ -52,3 +52,28 @@
   transform: translateY(-2px);
   transition: transform 0.2s ease;
 }
+
+/* Thêm vào file CSS */
+.dropzone-active {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.task-dragging {
+  opacity: 0.5;
+  transform: rotate(3deg);
+}
+/* Thêm vào file CSS của bạn */
+@keyframes pulse-dropzone {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.dropzone-active {
+  animation: pulse-dropzone 1s infinite;
+}
