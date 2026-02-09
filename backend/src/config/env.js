@@ -1,5 +1,5 @@
-const path = require('path');
-require('dotenv').config({ path: path.join(process.cwd(), '.env') });
+const path = require("path");
+require("dotenv").config({ path: path.join(process.cwd(), ".env") });
 
 function required(name) {
   const v = process.env[name];
@@ -8,24 +8,23 @@ function required(name) {
 }
 
 const env = {
-  port: Number(process.env.PORT || 4000),
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  port: Number(process.env.PORT || 5000),
+  clientOrigin: (process.env.CLIENT_ORIGIN || "http://localhost:5173").split(
+    ",",
+  ),
 
   db: {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    user: required('DB_USER'),
-    password: required('DB_PASSWORD'),
-    database: required('DB_NAME'),
+    uri: required("DB_URI"), // ví dụ: mongodb://127.0.0.1:27017
+    database: required("DB_NAME"), // ví dụ: todo_db
   },
 
   jwt: {
-    secret: required('JWT_SECRET'),
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    secret: required("JWT_SECRET"),
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
 
   google: {
-    clientId: required('GOOGLE_CLIENT_ID'),
+    clientId: required("GOOGLE_CLIENT_ID"),
   },
 };
 
